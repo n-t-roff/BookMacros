@@ -1,0 +1,202 @@
+% Copyright (c) 2016, Carsten Kunze
+%
+% This file is public domain.
+%
+\def\Version{0.0.0}
+\def\makeatletter{\catcode`\@11\relax}
+\def\makeatother{\catcode`\@12\relax}
+\makeatletter
+\def\ChaptFont{\tenssbx}
+\def\SecFont{\tenssbx}
+\ifx\TocNam\undefined\def\TocNam{Contents}\fi
+\ifx\LofNam\undefined\def\LofNam{List of figures}\fi
+\ifx\LotNam\undefined\def\LotNam{List of tables}\fi
+\ifx\TblNam\undefined\def\TblNam{Tbl.}\fi
+\ifx\FigNam\undefined\def\FigNam{Fig.}\fi
+% 0: never, 1: part, 2: chapter
+\ifx\EjectLevel\undefined\def\EjectLevel{2}\fi
+\font\seventeenss=cmss17
+\font\twelvess=cmss12
+\font\tenssbx=cmssbx10
+\newcount\@ChaptNr\newcount\@SecNr\newcount\@TblNr\newcount\@FigNr
+\newcount\@CurPgNr
+\newcount\RefPgNr
+\newcount\@ListLevel
+\newcount\@ItemLevel\newcount\@EnumLevel
+\newcount\@ItemCtr
+\newcount\FootnoteCtr
+\newdimen\EpsfXsize
+\newdimen\@pagewidth\@pagewidth=\hsize % doublecolumn
+\newdimen\@pageheight\@pageheight=\vsize
+\newskip\TocChaptNrWidth\TocChaptNrWidth=1.75em % p. 118
+\newwrite\@TocFh\newwrite\@LofFh\newwrite\@LotFh
+\newwrite\@IdxFh\immediate\openout\@IdxFh=idx.txt
+\newwrite\@XrefFh\immediate\openout\@XrefFh=xref.txt
+\let\@leftbracket=[
+\def\onepageout#1{\shipout\vbox{%
+  \offinterlineskip
+  \vbox to \@pageheight{%
+   #1\boxmaxdepth=\maxdepth}}%
+ \advancepageno}%
+\newbox\partialpage
+\def\begindoublecolumns{\begingroup
+ \output={\global\setbox\partialpage=\vbox{\unvbox255\bigskip}}\eject
+ \output={\doublecolumnout}
+ \hsize=.5\@pagewidth
+ \vsize=2\@pageheight}
+\def\enddoublecolumns{\output={\balancecolumns}\eject
+ \endgroup \pagegoal=\vsize}
+\def\doublecolumnout{\splittopskip=\topskip \splitmaxdepth=\maxdepth
+ \dimen@=44pc \advance\dimen@ by-\ht\partialpage
+ \setbox0=\vsplit255 to\dimen@ \setbox2=\vsplit255 to\dimen@
+ \onepageout\pagesofar
+ \unvbox255 \penalty\outputpenalty}
+\def\pagesofar{\unvbox\partialpage
+ \wd0=\hsize \wd2=\hsize \hbox to\@pagewidth{\box0\hfil\box2}}
+\def\balancecolumns{\setbox0=\vbox{\unvbox255} \dimen@=\ht0
+ \advance\dimen@ by\topskip \advance\dimen@ by-\baselineskip
+ \divide\dimen@ by2 \splittopskip=\topskip
+ {\vbadness=10000 \loop \global\setbox3=\copy0
+  \global\setbox1=\vsplit3 to\dimen@
+  \ifdim\ht3>\dimen@ \global\advance\dimen@ by1pt \repeat}
+ \setbox0=\vbox to\dimen@{\unvbox1}
+ \setbox2=\vbox to\dimen@{\unvbox3}
+ \pagesofar}
+% for bplain
+\expandafter\def\csname OT1\string\`\endcsname#1{{\accent18 #1}}
+\expandafter\def\csname OT1\string\~\endcsname#1{{\accent126 #1}}
+% also {\tt\char'15}
+\chardef\AQ=`\
+\chardef\lC=`{
+\chardef\rC=`}
+\chardef\RS=`\\
+\def\Bq{,\kern-.07em,}%
+\def\LaTeX{L\kern-.2em\raise.6ex\hbox{A}\kern-.15em\TeX}%
+\def\@leaderfill{\leaders\hbox to1em{\hss.\hss}\hfil}%
+\def\@MkTocEnt{\xdef\@WrTocEnt{\write\@TocFh{%
+ \line{\@TocText\@leaderfill\noexpand\number\pageno}}}\@WrTocEnt}%
+\def\@MkLofEnt{\xdef\@WrLofEnt{\write\@LofFh{%
+ \line{\@TocText\@leaderfill\noexpand\number\pageno}}}\@WrLofEnt}%
+\def\@MkLotEnt{\xdef\@WrLotEnt{\write\@LotFh{%
+ \line{\@TocText\@leaderfill\noexpand\number\pageno}}}\@WrLotEnt}%
+\def\FChapt#1{%
+ \removelastskip
+ \ifnum \EjectLevel>1 \vfill\supereject\FootnoteCtr=0 \else\bigbreak\fi
+ \noindent{\ChaptFont#1}\par\nobreak\medskip
+ \everypar={{\setbox0=\lastbox}\everypar={}}}%
+\def\@ChaptTxt{}
+\def\Chapt#1{\advance\@ChaptNr by1
+ \@SecNr=0 \@TblNr=0 \@FigNr=0 \def\@SecTxt{}%
+ \def\@HdNr{\the\@ChaptNr}\def\@HdTxt{#1}\def\@ChaptTxt{#1}%
+ \removelastskip
+ \ifnum \EjectLevel>1 \vfill\supereject\FootnoteCtr=0 \else\bigbreak\fi
+ \noindent{\ChaptFont\the\@ChaptNr\hskip1em#1}%
+ {\def\@TocText{\hbox to\TocChaptNrWidth{\the\@ChaptNr\hfil}#1}%
+  \let\next=\@TocText\@MkTocEnt}%
+ \par\nobreak\medskip\everypar={{\setbox0=\lastbox}\everypar={}}}%
+\def\UChapt#1{%
+ \removelastskip
+ \ifnum \EjectLevel>1 \vfill\supereject\FootnoteCtr=0 \else\bigbreak\fi
+ \noindent{\ChaptFont#1}%
+ {\def\@TocText{#1}\let\next=\@TocText\@MkTocEnt}%
+ \par\nobreak\medskip\everypar={{\setbox0=\lastbox}\everypar={}}}%
+\def\@MkSecNr{\the\@ChaptNr.\the\@SecNr}%
+\def\@SecTxt{}
+\def\Sec#1{\advance\@SecNr by1
+ \def\@HdNr{\@MkSecNr}\def\@HdTxt{#1}\def\@SecTxt{#1}%
+ \removelastskip\bigbreak\noindent{\SecFont\@MkSecNr\hskip1em#1}%
+ {\def\@TocText{\hskip\TocChaptNrWidth\hbox
+  to2em{\@MkSecNr\hfil}#1}\let\next=\@TocText\@MkTocEnt}%
+ \par\nobreak\medskip\everypar={{\setbox0=\lastbox}\everypar={}}}%
+\def\USec#1{%
+ \removelastskip\medbreak\smallskip\noindent{\SecFont#1}
+ \par\nobreak\smallskip\everypar={{\setbox0=\lastbox}\everypar={}}}%
+% paragraph like LaTeX
+\def\Par#1{\medbreak\noindent{\bf#1}}%
+\def\Toc{\FChapt{\TocNam}
+ \input toc\immediate\openout\@TocFh=toc}%
+\def\Lof{\UChapt{\LofNam}
+ \input lof\immediate\openout\@LofFh=lof}%
+\def\Lot{\UChapt{\LotNam}
+ \input lot\immediate\openout\@LotFh=lot}%
+\def\@Begin{\removelastskip\smallbreak\smallskip\begingroup}%
+\def\End{\removelastskip\smallbreak\smallskip\endgroup
+ \everypar={{\setbox0=\lastbox}\everypar={}}}%
+\def\BeginDisp{\@Begin\obeylines}%
+\def\BeginNarrow{\@Begin\narrower\noindent}%
+\def\BeginDesc{\@Begin
+ \ifnum\@ListLevel=0 \advance\leftskip by1em\else\advance\leftskip by4em\fi
+ \advance\@ListLevel by1 \@ItemLevel=0 \@EnumLevel=0
+ \def\Item##1{\par\removelastskip\smallskip\noindent\hangindent3em
+  \setbox0=\hbox{\bf##1}\hbox to\hangindent{\bf##1\hss}%
+  \ifdim\wd0>2em\hfil\break\fi
+  \ignorespaces}%
+ \def\Paragr{\smallskip\hangindent=3em\hangafter=0 \noindent}}%
+\def\labelitemi{$\bullet$}% \textbullet
+\def\labelitemii{{\bf--}}% \normalfont\bfseries\textendash
+\def\labelitemiii{*}% \textasteriskcentered
+\def\labelitemiv{.}% \textperiodcentered
+\def\BeginItem{\@Begin
+ \advance\leftskip by1em\advance\@ListLevel by1 \@EnumLevel=0
+ \ifnum\@ItemLevel=4 \@ItemLevel=1 \else\advance\@ItemLevel by1 \fi
+ \ifnum\@ItemLevel=1 \def\@ItemSymb{\labelitemi}\else
+  \ifnum\@ItemLevel=2 \def\@ItemSymb{\labelitemii}\else
+   \ifnum\@ItemLevel=3 \def\@ItemSymb{\labelitemiii}\else
+    \def\@ItemSymb{\labelitemiv}\fi\fi\fi
+ \def\Item{\par\removelastskip\smallskip\hangindent=1em\noindent\hbox
+  to\hangindent{\@ItemSymb\hfil}}%
+ \def\Paragr{\smallskip\hangindent=1em\hangafter=0 \noindent}}%
+\def\BeginEnum{\@Begin
+ \advance\leftskip by2em\advance\@ListLevel by1 \@ItemLevel=0
+ \ifnum\@EnumLevel=4 \@EnumLevel=1 \else\advance\@EnumLevel by1 \fi
+ \ifnum\@EnumLevel=1 \def\@EnumTag{\number\@ItemCtr.}\@ItemCtr=0\else
+  \ifnum\@EnumLevel=2 \def\@EnumTag{\char\@ItemCtr)}\@ItemCtr=96\else
+   \ifnum\@EnumLevel=3 \def\@EnumTag{\romannumeral\@ItemCtr.}\@ItemCtr=0\else
+    \def\@EnumTag{\char\@ItemCtr.}\@ItemCtr=64\fi\fi\fi
+ \def\Item{\advance\@ItemCtr by 1
+  \par\removelastskip\smallskip\hangindent=2em\noindent\hbox
+  to\hangindent{\hfil\@EnumTag\hskip.5em}}%
+ \def\Paragr{\smallskip\hangindent=2em\hangafter=0 \noindent}}%
+\def\@MkIdxEnt{%
+ \xdef\@WrIdxEnt{\write\@IdxFh{\@IdxText\noexpand\number\pageno}}\@WrIdxEnt}%
+\def\index#1{{\def\@IdxText{#1 }\let\next=\@IdxText\@MkIdxEnt}}%
+\def\@FloatNr{0}%
+\def\TblCapt{\futurelet\next\@TblCaptIf}
+\def\@TblCaptIf{\ifx\next\@leftbracket\expandafter\@TblCaptTwo
+ \else\expandafter\@TblCaptOne\fi}
+\def\@TblCaptTwo[#1]#2{\@TblCaptHere{#2}\@TblCaptLot{#1}}%
+\def\@TblCaptOne#1{\@TblCaptHere{#1}\@TblCaptLot{#1}}%
+\def\@TblCaptHere#1{\global\advance\@TblNr by1
+ \xdef\@FloatNr{\the\@ChaptNr.\the\@TblNr}{\bf\TblNam~\@FloatNr. }#1}%
+\def\@TblCaptLot#1{{\def\@TocText{\TblNam\ \@FloatNr\ \ #1}%
+ \let\next=\@TocText\@MkLotEnt}}%
+\def\FigCapt{\futurelet\next\@FigCaptIf}
+\def\@FigCaptIf{\ifx\next\@leftbracket\expandafter\@FigCaptTwo
+ \else\expandafter\@FigCaptOne\fi}
+\def\@FigCaptTwo[#1]#2{\@FigCaptHere{#2}\@FigCaptLof{#1}}%
+\def\@FigCaptOne#1{\@FigCaptHere{#1}\@FigCaptLof{#1}}%
+\def\@FigCaptHere#1{\global\advance\@FigNr by1
+ \xdef\@FloatNr{\the\@ChaptNr.\the\@FigNr}{\bf \FigNam~\@FloatNr. }#1.}%
+\def\@FigCaptLof#1{{\def\@TocText{\FigNam\ \@FloatNr\ \ #1}%
+ \let\next=\@TocText\@MkLofEnt}}%
+\def\@MkXrefEnt{%
+ \xdef\@WrXrefEnt{\write\@XrefFh{\@XrefText\noexpand\number\pageno}}%
+ \@WrXrefEnt}%
+\def\Ref#1{}\def\RefNr{}\def\RefHdNr{}\def\RefHd{}\def\RefPg{}%
+\def\Label#1{%
+ {\def\@XrefText{label #1\ nr \@FloatNr\ hdNr \@HdNr\ hdTxt \@HdTxt\ }%
+  \let\next=\@XrefText\@MkXrefEnt}}%
+\headline={\ifnum\pageno=1\hfil\else
+ \ifodd\pageno\@OddPgHd\else\@EvenPgHd\fi\fi}%
+\footline={\ifnum\pageno=1\hfil\folio\hfil\fi}%
+%\def\@OddPgHd{\tenrm\hfil\@SecTxt\qquad\folio}%
+\def\@OddPgHd{\tenrm\hfil\folio}%
+%\def\@EvenPgHd{\tenrm\folio\qquad\@ChaptTxt\hfil}%
+\def\@EvenPgHd{\tenrm\folio\hfil}%
+\def\Lang#1{\makeatletter\language\csname l@#1\endcsname\makeatother}%
+\def\EpsfBox#1{\EpsfXsize=\epsfxsize\epsfbox{#1}{%
+  \ifnum\EpsfXsize=0 \epsfgetbb{#1}\global\EpsfXsize=\epsfxsize\fi}%
+ \advance\EpsfXsize by3pt}% Frame size
+\def\FootnoteRef{$^\the\FootnoteCtr$}
+\def\Footnote#1{\advance\FootnoteCtr by1\footnote{\FootnoteRef}{#1}}%
+\makeatother

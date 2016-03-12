@@ -1,0 +1,114 @@
+#!/usr/bin/perl
+
+# Copyright (c) 2016, Carsten Kunze <carsten.kunze@arcor.de>
+#
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+# OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# PERFORMANCE OF THIS SOFTWARE.
+
+use warnings;
+use strict;
+
+sub categ   ($) ;
+sub idxsort ($$);
+sub output      ;
+sub reduce  ($) ;
+
+# %words is a hash of lists.
+# It's keys are reduce()d index words.
+# The value is a list which contains the index word and a hash of page numbers.
+our %words;
+
+while (<>) {
+	chomp;
+	s/\s+(\d+)$// or die;
+	my $page = $1;
+	my $text = $_;
+	my $attr = "";
+	while (1) {
+		$text =~ s/!(I)$// and do { $attr .= $1; next };
+		$text =~ s/!(B)$// and do { $attr .= $1; next };
+		last;
+	}
+	reduce \$_;
+	defined $words{$_} or do {
+		$words{$_} = [$text, {$page => $attr}];
+		next;
+	};
+	${${$words{$_}}[1]}{$page} = $attr;
+}
+
+output;
+exit;
+
+sub output {
+	my $l = '';
+	print <<EOT;
+\\begindoublecolumns
+EOT
+	for my $word (sort idxsort keys %words) {
+		my $w0 = uc substr $word, 0, 1;
+		$w0 ne $l and do {
+			if (length $l) { print <<EOT;
+\\bigskip
+EOT
+			} else { print <<EOT;
+\\smallskip
+EOT
+			}
+			$l = $w0;
+			print <<EOT;
+\\noindent{\\bf $w0}
+\\par\\nobreak\\smallskip
+EOT
+		};
+		my $text = ${$words{$word}}[0];
+		my $entry = $text;
+		my $pages = ${$words{$word}}[1];
+		for my $page (sort keys %$pages) {
+			my $p = $page;
+			${$pages}{$page} =~ /I/ and $p = "{\\it$p}";
+			$text .= ", $p";
+		}
+		print <<EOT;
+\\par\\noindent\\hangindent2em $text
+\\def\\ChaptTxt{Index --- $entry}%
+\\def\\SecTxt{\\ChaptTxt}%
+EOT
+	}
+	print <<EOT;
+\\enddoublecolumns
+EOT
+}
+
+sub reduce ($) {
+	my $text = shift;
+	$$text =~ s/\\(?:fam|ttfam|tentt) //g;
+	$$text =~ s/[{}]//g;
+	$$text =~ s/\\RS //g;
+}
+
+sub idxsort ($$) {
+	my ($a, $b) = @_;
+	$a = uc $a;
+	$b = uc $b;
+	my $a0 = substr $a, 0, 1;
+	my $b0 = substr $b, 0, 1;
+	my $ca = categ $a0;
+	my $cb = categ $b0;
+	$ca != $cb and return $ca <=> $cb;
+	$a cmp $b
+}
+
+sub categ ($) {
+	my $c = shift;
+	$c ge '0' && $c le '9' || $c ge 'A' && $c le 'Z'
+}

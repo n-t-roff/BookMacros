@@ -1,0 +1,755 @@
+\newif\ifToDo\ToDotrue
+\newif\ifSpec\Spectrue
+% To be set before the macro package since it stores these values.
+% Letter: 216 × 279, A4: 210 × 297
+\advance\hsize by-6mm\advance\vsize by18mm
+\input epsf
+\input btxmac
+\input BookMacros/BookMacros
+\input xref
+\def\EjectLevel{1}% no page break for chapters
+%\def\LaTeX{L\kern-.36em\raise.3ex\hbox{\sc \uppercasesc a}\kern-.15em\TeX}%
+\def\LaTeX{L\kern-.36em\raise.3ex\hbox{a}\kern-.15em\TeX}%
+\def\RmNTS#1{{\rm$\langle$#1$\rangle$}} % nonterminal symbol
+\def\SlNTS#1{\RmNTS{{\sl#1\/}}} % nonterminal symbol
+\centerline{\seventeenss Plain \TeX\ BookMacros}
+\vskip2ex
+\centerline{\twelvess Version \Version}
+\Toc\Lof\Lot
+\Chapt{Introduction}
+Typesetting a book document with Knuth {\tt tex} ({\sl not} {\tt etex}
+or {\tt pdftex}) using {\sl only} the plain \TeX\ format is not
+recommended.
+The {\sl \TeX book}, for example, is set with the {\tt manmac}
+macros to avoid tedious repetitions of low level commands
+and to achieve a consistent layout.
+The intention of the {\sl BookMacros} is to provide the minimum set
+of macros and tools to create a book document using traditional
+Knuth {\tt tex} with the plain \TeX\ format.
+The goal had been to use as much as possible from plain \TeX\
+directly and add only as little as necessary to keep writing
+a document manageable and consistent.
+Of course an author is encouraged to create
+macros for each style markup element of a document.
+The following features are supported:
+\BeginItem
+\Item Automatic table of contents and list of figures and
+tables generation
+\Item A set of headlines
+\Item Displays
+\Item Item, enumeration, and description lists
+\Item Table and figure captions
+\Item Footnote numbering
+\Item Cross references and index
+\End
+Still there is much work to do, but currently work on this
+package is stopped.
+Next steps would have been:
+\BeginItem
+\Item Page header, roman page numbers in front and back matter,
+two-sided documents
+\Item Additional fonts
+\Item Using MakeIndex instead of the current solution
+\Paragr (It is not hard to put the main features of MakeIndex
+into a script---but then why not {\sl use} MakeIndex \dots)
+\Item Use of {\tt\RS pdfximage} instead of {\tt\RS epsfbox}
+when {\tt pdftex} instead of {\tt tex} is used
+\End
+\Chapt{Elements to by taken from plain \TeX}
+Some features for typesetting a document are already supported
+by plain \TeX\ in a form that allows direct use in a document.
+In short everything that is not mentioned in later chapters
+needs to be taken from plain \TeX.
+Please refer to \cite{knuth:ct:a} for a thorough description of plain \TeX.
+\Sec{Title page}
+Since the style of the initial pages of a book may vary significantly
+there is no macro support for everything before the table of contents.
+\Sec{Type area}
+The default plain \TeX\ type area seems to be based on the letter format.
+To achieve other formats the dimensions {\tt\RS hsize} and/or
+{\tt\RS vsize} needs to be adjusted.
+This document uses
+\BeginDisp\tt
+\RS advance\RS hsize by-6mm\RS advance\RS vsize by18mm
+\End
+for format A4.
+This must be done {\sl before\/} the macro package is included since
+it stores these values.
+\Sec{Special characters}
+\settabs\+\hskip4.5em&\cr
+\+&{\tt\RS thinspace} (distance:
+ \hbox{\vrule height 1.5ex depth 0ex
+ \thinspace \vrule height 1.5ex depth 0ex}\thinspace)\cr
+\+\`{}&{\tt\RS\`{}\lC\rC}\cr
+\+\'{}&{\tt\RS\AQ\lC\rC}\cr
+\+\~{}&{\tt\RS\~{}\lC\rC}\cr
+\+$\bullet$&{\tt\$\RS bullet\$}\cr
+\+\dag&{\tt\RS dag}\cr
+\+\ddag&{\tt\RS ddag}\cr
+\+\S&{\tt\RS S}\cr
+\+\P&{\tt\RS P}\cr
+\+\dots&{\tt\RS dots}\cr
+\+``\SlNTS{text}''&{\tt\`{}\`{}\SlNTS{text}\AQ\AQ}\cr
+\+{\it\$}&{\tt\lC\RS it\RS\$\rC}\cr
+\+\$&{\tt\RS\$}\cr
+\+\%&{\tt\RS\%}\cr
+\+\&&{\tt\RS\&}\cr
+\+\#&{\tt\RS\#}\cr
+\+\_&{\tt\RS\_}\cr
+\+$\langle$&{\tt\$\RS langle\$}\cr
+\+$\rangle$&{\tt\$\RS rangle\$}\cr
+\+$\{$&{\tt\$\RS\lC\$}\cr
+\+$\}$&{\tt\$\RS\rC\$}\cr
+\+$|$&{\tt\$|\$}\cr
+\+\lq&\vtop{\advance\hsize by-4em
+ {\tt\RS lq} (Left single quote.
+ Can be used for a ligature with itself
+ to produce a left double quote.)
+}\cr
+\+\rq&{\tt\RS rq}\cr
+\+\"a&{\tt\RS "a} (In general an {\sl umlaut} is generated
+ by preceding a letter with {\tt\RS "})\cr
+\+\ss&{\tt\char`\\ss}\cr
+\USec{Only in {\tt\RS tt} available special characters}
+\settabs\+\hskip2em&\cr
+{\tt
+ \+<&<\cr
+ \+>&>\cr
+ \+|&|\cr
+ \+"&"\cr
+ \+\char`\ &\RS char\`{}\RS\char`\ \ {\rm(visible space)}\cr
+}% \tt
+\Sec{Tables}
+Tables needs to set as described in the \TeX book, unfortunately.
+\Ref{Chapt:TblCapt}
+Only table captions are supported by this package, please refer to
+chapter \RefHdNr\ (\RefHd)\RefPg.
+\Sec{Keeps}
+Keeps are achieved by enclosing something with
+{\tt\RS vbox\lC}\dots{\tt\rC}.
+\Sec{Floats}
+Floats are created with
+\BeginDisp\tt
+\RS topinsert\SlNTS{vertical mode material}\RS endinsert
+\End
+(\cite[p. 115]{knuth:ct:a}).
+If {\tt\RS midinsert} is used instead of {\tt\RS topinsert},
+the float is placed at the current vertical position if possible
+(\cite[p. 116]{knuth:ct:a}).
+Else it has the same effect as {\tt\RS topinsert}.
+\Sec{Minipages}
+\hbox{%
+ \vtop{\hsize=.5\hsize\advance\hsize by-2em
+  If a narrow text area is needed (e.\thinspace g. in a table)
+  it can be produced with {\tt\RS vtop} and a local change of
+  {\tt\RS hsize}.
+  If two such text areas should be placed side by side,
+  they can be put in a {\tt\RS hbox} separated a {\tt\RS hskip}:
+ }%
+ \hskip1.5em%
+ \vtop{\hsize=.5\hsize\advance\hsize by.5em
+  \obeylines\tt\parindent=0sp
+  \RS hbox\lC\%
+  \ \RS vtop\lC\RS hsize=.5\RS hsize\RS advance\RS hsize by-.5em
+  \ \ {\rm$\langle${\sl text \dots\/}$\rangle$}\rC\%
+  \ \RS hskip1em\%
+  \ \RS vtop\lC\RS hsize=.5\RS hsize\RS advance\RS hsize by-.5em
+  \ \ {\rm$\langle${\sl text \dots\/}$\rangle$}\rC\%
+  \rC
+ }%
+}
+\Sec{Bibliography}
+The plain \TeX\ macro package {\tt btxmac} provides the functionality
+to produce a bibliography with a {\sl BibTeX} database.
+The documentation of {\tt btxmac} is contained in it's source
+code file and is similar to the usage in \LaTeX.
+To use the package it needs to be included with
+\BeginDisp\tt
+\RS input btxmac
+\End
+at begin of the document.
+A reference from the database is cited with
+\BeginDisp\tt
+\RS cite[\SlNTS{optional text}]\lC\SlNTS{database reference}\rC
+\End
+e.\thinspace g.
+\BeginDisp\tt
+\RS cite[p.\ 116]\lC knuth:ct:a\rC
+\End
+The bibliography is included with
+\BeginDisp\tt
+\RS nocite\lC *\rC
+\RS bibliographystyle\lC plain\rC
+\RS bibliography\lC\SlNTS{database name}\rC
+\End
+The generated {\tt aux} file needs to be processed
+with the tool {\tt bibtex}.
+\Chapt{Creating new documents}%
+For each document a directory must be created first:
+\BeginDisp\tt
+mkdir -p \SlNTS{directory path}
+cd \SlNTS{directory path}
+\End
+Then a symlink to the BookMacro directory is created:
+\BeginDisp\tt
+ln -s \SlNTS{path to BookMacro directory}
+\End
+and a symlink to the file {\tt configure} inside the {\tt BookMacro}
+link is created:
+\BeginDisp\tt
+ln -s BookMacro/configure
+\End
+The {\sl makefile} assumes that the file names without extension of the input
+and output file are the same.
+The default input file name is {\tt doc.tex}, the default output name
+is {\tt doc.dvi}.
+A different name can be configured by creating a file {\tt cfg.mk}
+which contains the line
+\BeginDisp\tt
+NAM = \SlNTS{name}
+\End
+Now a makefile needs to be generated with `{\tt./configure}'.
+The document is then generated with `{\tt make}'.
+`{\tt make clean}' removes all generated files except the makefile and
+the output document.
+With the target {\tt realclean}
+really all generated files are removed.
+\medskip\noindent
+If a specific hyphenation language should be used,
+some more settings need to be done in {\tt cfg.mk}.
+\BeginDisp\tt
+TEX = etex
+\End
+sets the tool (instead of traditional Knuth {\tt tex})
+which is used for other hyphenation patterns.
+\BeginDisp\tt
+FTM = bplain
+\End
+sets the required {\tt bplain} format.
+\BeginDisp\tt
+TEXFLAGS = -fmt \$(FMT)
+\End
+specifies the necessary tool options.
+\medskip\noindent
+The language is selected with the macro
+\BeginDisp\tt
+\RS Lang\lC\SlNTS{language}\rC
+\End
+e.\thinspace g.
+\BeginDisp\tt
+\RS Lang\lC ngerman\rC
+\End
+\USec{Document structure}%
+At the beginning the macros needs to be included:
+\BeginDisp\tt
+\RS input BookMacros/BookMacros
+\End
+If cross references are used, it's data needs to be included next:
+\BeginDisp\tt
+\RS input xref
+\End
+The title page has to be created manually.
+A simple approach (for a title without title page) is to type
+\BeginDisp\tt
+\RS centerline\lC\RS seventeenss \SlNTS{title}\rC
+\End
+The table of contents is inserted by the command
+\BeginDisp\tt
+\RS Toc\index{{\tt\RS Toc}}
+\End
+Chapters are added with {\tt\RS Chapt}, sections with {\tt\RS Sec},
+paragraph headings with {\tt\RS Par}:
+\BeginDisp\tt
+\RS Chapt\lC\SlNTS{title}\rC
+\RS Sec\lC\SlNTS{title}\rC
+\RS Par\lC\SlNTS{title}\rC
+\End
+If an index is used it is included with the following statements:
+\BeginDisp\tt
+\RS UChapt\lC Index\rC
+\RS input idx
+\End
+The final statement of each document is
+\BeginDisp\tt
+\RS bye
+\End
+\Chapt{Special characters}\index{special characters}%
+\settabs\+\hskip5em&\cr
+	\index{{\tt\RS Bq} (low double comma quotation mark)}
+	\index{low double comma quotation mark (`\Bq')}
+	\index{quotation mark}
+\+\Bq\SlNTS{text}``&{\tt\RS Bq \SlNTS{text}\`{}\`{}}
+(german quotation marks)\cr
+\USec{Only in {\tt\RS tt} available special characters}
+\settabs\+\hskip2.5em&\cr
+{\tt
+	\index{{\tt\RS lC} (left curly bracket)}
+	\index{left curly bracket (`{\tt\lC}')}
+\+\lC&\RS lC {\rm(left curly bracket)}\cr
+	\index{{\tt\RS rC} (right curly bracket)}
+	\index{right curly bracket (`{\tt\rC}')}
+\+\rC&\RS rC {\rm(right curly bracket)}\cr
+	\index{{\tt\RS AQ} (apostrophe quote)}
+	\index{apostrophe quote (`{\tt\AQ}')}
+\+\AQ&\RS AQ {\rm(apostrophe quote)}\cr
+	\index{{\tt\RS RS} (reverse slash)}
+	\index{reverse slash (`{\tt\RS}')}
+\+\RS&\RS RS {\rm(reverse slash)}\cr
+}% \tt
+\Chapt{Fonts}\index{fonts}%
+Table~\Ref{tblFonts}\RefNr\RefPg\ shows additional fonts available in the
+BookMacros.
+\midinsert
+\newdimen\Hsize\Hsize=7cm
+\newdimen\Lsize\Lsize=2.3cm
+\newdimen\Msize\Msize=\Hsize
+\newdimen\Rsize\Rsize=1cm
+\advance\Msize by-\Lsize
+\advance\Msize by-\Rsize
+\advance\Msize by-.5cm % 2*gap
+\def\TblRow#1#2#3{%
+ \medskip
+ \hbox to\Hsize{%
+  \hbox to\Lsize{\tt\RS#1\hfil}\hfil
+  \vtop{\hsize=\Msize \noindent#2}\hfil
+  \hbox to\Rsize{\hfil#3\hfil}%
+ }%
+}%
+\line{\hfil\hbox to\Hsize{%
+ \vbox{%
+  \hbox to\Hsize{\hfil\TblCapt{Additional fonts}\hfil}%
+  \Label{tblFonts}%
+  \smallskip
+  \hrule width\Hsize
+  \smallskip
+  \hbox to\Hsize{%
+   \hbox to\Lsize{\hfil\bf Name\hfil}\hfil
+   \hbox to\Msize{\hfil\bf Description\hfil}\hfil
+   \hbox to\Rsize{\hfil\bf Size\hfil}%
+  }%
+  \TblRow{seventeenss}{{\seventeenss Sans serif 17}}{17}%
+   \index{{\tt\RS seventeenss}}\index{Sans serif}%
+  \TblRow{twelvess}{{\twelvess Sans serif 12}}{12}%
+   \index{{\tt\RS twelvess}}%
+  \TblRow{tenssbx}{{\tenssbx Bold sans serif 10}}{10}%
+   \index{{\tt\RS tenssbx}}%
+  \smallskip
+  \hrule width\Hsize}}\hfil}%
+\endinsert
+\Chapt{Headings and Table of Contents}\index{heading}%
+\USec{Chapter headings}\index{chapter}%
+\BeginDesc
+\Item{\tt\RS FChapt\lC\SlNTS{title}\rC}
+\index{{\tt\RS FChapt}}\index{unnumbered chapter}%
+Unnumbered chapter without TOC entry intended for the preamble of a document.
+This macro is used by {\tt\RS Toc}.
+\Item{\tt\RS Chapt\lC\SlNTS{title}\rC}
+\index{{\tt\RS Chapt}}%
+Normal chapter heading.
+The chapter heading font is defined by the macro
+{\tt\RS ChaptFont}.
+\Item{\tt\RS UChapt\lC\SlNTS{title}\rC}
+\index{{\tt\RS UChapt}}%
+Unnumbered chapter with TOC entry intended for the appendix of a document.
+\End
+\USec{Section headings}\index{section}%
+\BeginDesc
+\Item{\tt\RS Sec\lC\SlNTS{title}\rC}
+\index{{\tt\RS Sec}}%
+Normal section heading.
+The section heading font is defined by the macro
+{\tt\RS SecFont}.
+\Item{\tt\RS USec\lC\SlNTS{title}\rC}
+\index{{\tt\RS USec}}\index{unnumbered section}%
+Unnumbered section without TOC entry.
+\End
+\USec{Paragraph heading}\index{paragraph heading}%
+\BeginDesc
+\Item{\tt\RS Par\lC\SlNTS{title}\rC}
+\index{{\tt\RS Par}}%
+Paragraph heading.
+\End
+\USec{Table of Contents}\index{table of contents}%
+The table of contents is output with the
+\BeginDisp\tt
+\RS Toc\index{{\tt\RS Toc}}
+\End
+command.
+It precedes a heading with the default name ``\TocNam''.
+This name can be changed by redefining {\tt\RS TocNam}.
+\USec{List of tables}\index{list of tables}%
+A list of tables can be output with the
+\BeginDisp\tt
+\RS Lot\index{{\tt\RS Lot}}
+\End
+command.
+It precedes a heading with the default name ``\LotNam''.
+This name can be changed by redefining {\tt\RS LotNam}.
+\USec{List of figures}\index{list of figures}%
+A list of figures can be output with the
+\BeginDisp\tt
+\RS Lof\index{{\tt\RS Lof}}
+\End
+command.
+It precedes a heading with the default name ``\LofNam''.
+This name can be changed by redefining {\tt\RS LofNam}.
+\Chapt{Displays}\index{display}%
+Displays draw text with one line of output for each input line
+indented on the left side.
+Display neither have the keep\index{keep!I} nor the float\index{float!I}
+function.
+For keeps {\tt\RS vbox} is required, for floats e.g.
+{\tt\RS midinsert} can be used.
+Input
+\BeginDisp\tt
+\vbox{%
+\RS BeginDisp\index{{\tt\RS BeginDisp}}
+\RS vbox\lC\% only required for keep function
+First line
+second line
+\rC\%
+\RS End\index{{\tt\RS End}}
+}% \vbox
+\End
+yields
+\BeginDisp
+First line
+second line
+\End
+If the display should be set in typewriter text {\tt\RS tt} is
+simply appended to {\tt\RS BeginDisp}
+({\tt\RS BeginDisp} and {\tt\RS End} form a group):
+\BeginDisp\tt
+\RS BeginDisp\RS tt
+{\rm\dots}
+\RS End
+\End
+Displays and the following text don't have an indentation of the first line.
+\BeginNarrow\index{indented text blocks}%
+For indentation of adjusted text at the left and right side the macros
+{\tt\RS BeginNarrow} and {\tt\RS End} are available:
+\BeginDisp\tt
+\RS BeginNarrow\index{{\tt\RS BeginNarrow}}
+{\rm\dots}
+\RS End
+\End
+{\tt\RS BeginNarrow} and {\tt\RS End} form a group.
+Font changes may simply be appended to {\tt\RS BeginNarrow}.
+\End
+Indented text blocks and the following text don't have an indentation
+of the first line.
+\Chapt{Lists}\index{lists}%
+\Sec{Item Lists}\index{item lists}%
+An item list has the following structure:
+\BeginDisp\tt
+\RS BeginItem\index{{\tt\RS BeginItem}}
+\RS Item\index{{\tt\RS Item}} \SlNTS{text}
+\RS Paragr\index{{\tt\RS Paragr}} \SlNTS{text}
+\RS Item \SlNTS{text}
+\RS End
+\End
+{\tt\RS Paragr} starts a new paragraph within an item.
+Example:\par\noindent
+\hbox{%
+ \vtop{\hsize=.3\hsize\advance\hsize by-1em\noindent
+  \BeginItem
+  \Item Item 1
+   \BeginItem
+   \Item Item 1.1
+    \BeginItem
+    \Item Item 1.1.1
+    \Item Item 1.1.2
+    \End
+   \Item Item 1.2
+   \Item Item 1.3
+   \End
+  \Item Item 2
+  \Paragr Paragr
+  \Item Item 3
+  \End
+ }%
+ \hskip2em%
+ \vtop{\hsize=.7\hsize\advance\hsize by-1em\noindent
+  \BeginDisp\tt
+   \RS BeginItem
+   \RS Item Item 1
+   \ \RS BeginItem
+   \ \RS Item Item 1.1
+   \ \ \RS BeginItem
+   \ \ \RS Item Item 1.1.1
+   \ \ \RS Item Item 1.1.2
+   \ \ \RS End
+   \ \RS Item Item 1.2
+   \ \RS End
+   \RS Item Item 2
+   \RS Paragr Paragr
+   \RS Item Item 3
+   \RS End
+  \End
+ }%
+}
+\Sec{Enum Lists}\index{enum lists}%
+An enum list has the following structure:
+\BeginDisp\tt
+\RS BeginEnum\index{{\tt\RS BeginEnum}}
+\RS Item\index{{\tt\RS Item}} \SlNTS{text}
+\RS Paragr\index{{\tt\RS Paragr}} \SlNTS{text}
+\RS Item \SlNTS{text}
+\RS End
+\End
+{\tt\RS Paragr} starts a new paragraph within an item.
+Example:\par\noindent
+\hbox{%
+ \vtop{\hsize=.3\hsize\advance\hsize by-1em\noindent
+  \BeginEnum
+  \Item Item 1
+   \BeginEnum
+   \Item Item 1.1
+    \BeginEnum
+    \Item Item 1.1.1
+    \Item Item 1.1.2
+    \End
+   \Item Item 1.2
+   \Item Item 1.3
+   \End
+  \Item Item 2
+  \Paragr Paragr
+  \Item Item 3
+  \End
+ }%
+ \hskip2em%
+ \vtop{\hsize=.7\hsize\advance\hsize by-1em\noindent
+  \BeginDisp\tt
+   \RS BeginEnum
+   \RS Item Item 1
+   \ \RS BeginEnum
+   \ \RS Item Item 1.1
+   \ \ \RS BeginEnum
+   \ \ \RS Item Item 1.1.1
+   \ \ \RS Item Item 1.1.2
+   \ \ \RS End
+   \ \RS Item Item 1.2
+   \ \RS End
+   \RS Item Item 2
+   \RS Paragr Paragr
+   \RS Item Item 3
+   \RS End
+  \End
+ }%
+}
+\Sec{Description Lists}\index{description lists}%
+A description list has the following structure:\par\noindent
+\hbox{%
+ \vtop{\hsize=.35\hsize\advance\hsize by-1em\vskip-1ex\noindent
+  \BeginDesc
+  \Item{\SlNTS{First tag}}\SlNTS{Descritpion text one}
+  \Item{\SlNTS{Second tag}}\SlNTS{Description text two}
+  \Paragr \SlNTS{Further text}
+  \End
+ }%
+ \hskip2em%
+ \vtop{\hsize=.65\hsize\advance\hsize by-1em\noindent
+  \BeginDisp\tt
+  \RS BeginDesc\index{{\tt\RS BeginDesc}}
+  \RS Item\lC\SlNTS{First tag}\rC\
+  \SlNTS{Descritpion text one}
+  	\index{{\tt\RS Item}}
+  \RS Item\lC\SlNTS{Second tag}\rC\
+  \SlNTS{Description text two}
+  \RS Paragr\index{{\tt\RS Paragr}} \SlNTS{Further text}
+  \RS End
+  \End
+ }%
+}\smallbreak\noindent
+Space after `{\tt\rC}' does not influence the output.
+If a new paragraph should be started within an item, {\tt\RS Paragr}
+is used.
+\Chapt{Table captions}\Label{Chapt:TblCapt}
+Table captions are set with the {\tt\RS TblCapt} command:
+\BeginDisp\tt
+\RS TblCapt[\SlNTS{optional short caption}]\lC\SlNTS{caption text}\rC
+\End
+If an \SlNTS{optional short caption} is given, it is used instead of
+\SlNTS{caption text} in the list of tables.
+To support flexible placement schemes (centered above the table,
+on top right to the table, etc.), the user is responsible for the
+caption placement.
+In simple cases something like
+\BeginDisp\tt
+\RS hbox to \SlNTS{table\
+width}\lC\RS hfil\RS TblCapt\lC\SlNTS{caption}\rC\RS hfil\rC
+\RS smallskip
+\End
+above the table should be sufficient.
+The caption is preceded by ``{\bf\TblNam}'' (followed by the
+table number).
+This text can be changed be redefining {\tt\RS TblNam}.
+\Chapt{EPS file inclusion}
+To enable EPS inclusion the {\tt epsf} macros need to be included
+by placing
+\BeginDisp\tt
+\RS input epsf
+\End
+at the begin of the document.
+The command to include the picture is
+\BeginDisp\tt
+\RS EpsfBox\lC\SlNTS{file name}\rC
+\End
+e.\thinspace g.
+\BeginDisp\tt
+\RS EpsfBox\lC ctanlion.eps\rC
+\End
+The macro sets {\tt\RS EpsfXsize} to the width of the picture.
+So if text should be placed beside the picture it can be done
+using the {\tt\RS FigCapt} macro with
+\BeginDisp\tt
+\RS vbox\lC\RS advance\RS hsize by-\RS EpsfXsize\RS noindent
+\ \RS FigCapt[\SlNTS{optional short caption}]\lC\SlNTS{caption text}\rC\rC
+\End
+If an \SlNTS{optional short caption} is given, it is used instead of
+\SlNTS{caption text} in the list of figures.
+The caption is preceded by ``{\bf\FigNam}'' (followed by the
+figure number).
+This text can be changed be redefining {\tt\RS FigNam}.
+Example:\smallskip\nobreak\noindent
+\EpsfBox{ctanlion.eps}
+\vbox{\advance\hsize by-\EpsfXsize\noindent
+ \FigCapt[Unscaled EPS image]{Text that follows normally appears
+  on the right with the same baseline}}
+\medbreak\noindent
+Pictures can be scaled by setting {\tt\RS epsfxsize=}\RmNTS{dimen}
+and/or {\tt\RS epsfysize=}\RmNTS{dimen}, e.\thinspace g.
+\BeginDisp\tt
+\RS epsfxsize=5cm
+\RS centerline\lC\RS EpsfBox\lC ctanlion.eps\rC\RS FigCapt\lC Scaled\
+EPS image\rC\rC
+\End
+produces:\smallskip\nobreak\noindent
+\epsfxsize=5cm
+\centerline{\EpsfBox{ctanlion.eps}\FigCapt{Scaled EPS image}}
+\Chapt{Footnotes}
+Plain \TeX\ provides a ready to use solution for
+footnotes\footnote{*}{Like this which is produced with
+{\tt\RS footnote\lC*\rC\lC\SlNTS{text}\rC},
+see \cite[p. 116]{knuth:ct:a}.}.
+To have automatic footnote numbering
+\BeginDisp\tt
+\RS Footnote\lC\SlNTS{text}\rC
+\End
+can be used.
+The footnote counter\Footnote{{\tt\RS FootnoteCtr}}
+is reset when the macro package calls
+{\tt\RS supereject} before a headline.\Footnote{Depends on the
+{\tt\RS EjectLevel} setting.}
+Further references to a previous footnote\FootnoteRef\ can be marked with
+{\tt\RS FootnoteRef}.
+{\tt\RS footnote} must not be used in an {\sl insert}.
+{\tt\RS vfootnote}\Footnote{\cite[p. 117]{knuth:ct:a}} may be used instead.
+\Chapt{Cross references}\index{cross references}%
+A reference mark can be placed with
+\BeginDisp\tt
+\RS Label\lC\SlNTS{label}\rC
+\End
+at a heading, table, figure etc.
+To reference a label the label data needs to be loaded with
+\BeginDisp\tt
+\RS Ref\lC\SlNTS{label}\rC
+\End
+After that the following macros are set:
+\BeginDesc
+\Item{\tt\RS RefPgNr} Reference page number.\index{{\tt\RS RefPgNr}}
+\Item{\tt\RS RefNr} Number of table or figure.\index{{\tt\RS RefNr}}
+\Item{\tt\RS RefHdNr} Number of heading.\index{{\tt\RS RefHdNr}}
+\Item{\tt\RS RefHd} Title of the last heading before the label.
+ \index{{\tt\RS RefHd}}%
+\Item{\tt\RS RefPg} Outputs text:\index{{\tt\RS RefPg}}
+ \BeginDesc
+ \Item{\RmNTS{nothing}} if the label is on the
+  current page,
+ \Item{\rm`` on the previous page''} if the label is on the previous page,
+ \Item{\rm`` on the following page''} if the label is on the next page, and
+ \Item{\rm`` on page {\tt\RS RefPgNr}''} else.
+ \End
+\Paragr (Notice the leading space.)
+\End
+\Chapt{Index}\index{index}%
+Words are added to the index with the {\tt\RS Idx} macro:\index{{\tt\RS Idx}}
+\BeginDisp\tt
+\RS index\lC\SlNTS{word or symbol}\rC
+\End
+If the words to add belong to a main category, they are separated
+by a `{\tt!}':
+\BeginDisp\tt
+\RS index\lC\SlNTS{main word}!\SlNTS{word or symbol}\rC
+\End
+A `{\tt!}' at the begin or end of the argument to {\tt\RS Idx} it is
+recognized as itself.
+If a `{\tt!}' should be placed inside other text it must be doubled.
+More that two consecutive `{\tt!}' need to be separated by `{\tt\lC\rC}':
+\BeginDisp\tt
+\RS index\lC Special characters!\lC\rC!!\rC
+\End
+For special markup additional symbols can be added to the argument,
+again separated by `{\tt!}' (see table~\Ref{tblIdxTypes}\RefNr\RefPg).
+If such such a symbol sequence is actually meant to be added to the index
+it needs to be doubled.
+The index generator removes such sequences one time from the end of the
+argument.
+If it apears a second time it is included into the index.
+Combinations of such markup symbols are possible:
+\BeginDisp\tt
+\RS index\lC \RS idx!(!B\rC
+\End
+\midinsert
+\newdimen\Hsize\Hsize=.98\hsize
+\newdimen\Lsize\Lsize=.200\Hsize
+\newdimen\Msize\Msize=\Hsize
+\newdimen\Rsize\Rsize=.282\Hsize
+\advance\Msize by-\Lsize
+\advance\Msize by-\Rsize
+\advance\Msize by-.7cm % 2*gap
+\def\TblRow#1#2#3{%
+ \medskip
+ \hbox to\Hsize{%
+  \vtop{\hsize=\Lsize \noindent#1}\hfil
+  \vtop{\hsize=\Msize \noindent#2}\hfil
+  \vtop{\hsize=\Rsize \noindent#3}%
+ }%
+}%
+\line{\hfil\hbox to\Hsize{%
+ \vbox{%
+  \hbox to\Hsize{\hfil\TblCapt{Types of index entries}\hfil}%
+  \Label{tblIdxTypes}%
+  \smallskip
+  \hrule width\Hsize
+  \smallskip
+  \hbox to\Hsize{%
+   \hbox to\Lsize{\hfil\bf Markup\hfil}\hfil
+   \hbox to\Msize{\hfil\bf Description\hfil}\hfil
+   \hbox to\Rsize{\bf Symbol\hfil}%
+  }%
+  \TblRow{Bold page number}{Text reference contains important
+   information for the subject.}{`{\tt B}'}%
+  \TblRow{Italic page number}{Text reference contains unimportant
+   information for the subject (``{\sl also mentioned there} \dots'').}{%
+   `{\tt I}'}%
+  \TblRow{Range of page numbers}{Subject is descripted on these range
+   of pages.}{Use `{\tt(}' for the first page and `{\tt)}' for the
+   last page of the range.}%
+  % TODO: "see" (no page number), "see also" (with `;' after page numbers)
+  \smallskip
+  \hrule width\Hsize}}\hfil}%
+\endinsert
+\ifSpec
+\noindent
+The argument to {\tt\RS Idx} is written to the file {\tt idx.txt} in the
+form \SlNTS{argument}\SlNTS{space}\SlNTS{page number}.
+\fi
+\UChapt{Bibliography}
+\nocite{*}
+\bibliographystyle{plain}
+\bibliography{local}
+\vfil\supereject
+\UChapt{Index}
+\input idx
+\bye

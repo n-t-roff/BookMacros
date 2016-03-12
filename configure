@@ -1,0 +1,19 @@
+#!/bin/sh
+InMk=BookMacros/makefile
+CfgMk=cfg.mk
+OutMk=makefile
+if [ -e $CfgMk ]; then
+	cat $CfgMk > $OutMk || exit 1
+else
+	> $OutMk || exit 1
+fi
+
+# Set defaults
+
+grep -q '^NAM' $OutMk || echo "NAM=doc" >> $OutMk || exit 1
+grep -q '^TEX' $OutMk || echo "TEX=tex" >> $OutMk || exit 1
+# to override a shell variable
+grep -q '^FMT' $OutMk || echo "FMT=" >> $OutMk || exit 1
+grep -q '^TEXFLAGS' $OutMk || echo "TEXFLAGS=" >> $OutMk || exit 1
+
+cat $InMk >> $OutMk || exit 1
