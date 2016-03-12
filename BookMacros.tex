@@ -3,8 +3,8 @@
 % This file is public domain.
 %
 \def\Version{0.0.0}
-\def\makeatletter{\catcode`\@11\relax}
-\def\makeatother{\catcode`\@12\relax}
+\def\makeatletter{\catcode`\@11 \relax}
+\def\makeatother{\catcode`\@12 \relax}
 \makeatletter
 \def\ChaptFont{\tenssbx}
 \def\SecFont{\tenssbx}
@@ -33,6 +33,7 @@
 \newwrite\@IdxFh\immediate\openout\@IdxFh=idx.txt
 \newwrite\@XrefFh\immediate\openout\@XrefFh=xref.txt
 \let\@leftbracket=[
+% Begin of macros for two-column output. Copied from manmac.
 \def\onepageout#1{\shipout\vbox{%
   \offinterlineskip
   \vbox to \@pageheight{%
@@ -62,10 +63,10 @@
  \setbox0=\vbox to\dimen@{\unvbox1}
  \setbox2=\vbox to\dimen@{\unvbox3}
  \pagesofar}
-% for bplain
+% End of macros for two-column output.
+% for bplain (2 lines (c) egreg)
 \expandafter\def\csname OT1\string\`\endcsname#1{{\accent18 #1}}
 \expandafter\def\csname OT1\string\~\endcsname#1{{\accent126 #1}}
-% also {\tt\char'15}
 \chardef\AQ=`\
 \chardef\lC=`{
 \chardef\rC=`}
@@ -111,7 +112,6 @@
 \def\USec#1{%
  \removelastskip\medbreak\smallskip\noindent{\SecFont#1}
  \par\nobreak\smallskip\everypar={{\setbox0=\lastbox}\everypar={}}}%
-% paragraph like LaTeX
 \def\Par#1{\medbreak\noindent{\bf#1}}%
 \def\Toc{\FChapt{\TocNam}
  \input toc\immediate\openout\@TocFh=toc}%
@@ -128,6 +128,7 @@
  \ifnum\@ListLevel=0 \advance\leftskip by1em\else\advance\leftskip by4em\fi
  \advance\@ListLevel by1 \@ItemLevel=0 \@EnumLevel=0
  \def\Item##1{\par\removelastskip\smallskip\noindent\hangindent3em
+  % Next 3 lines (c) egreg
   \setbox0=\hbox{\bf##1}\hbox to\hangindent{\bf##1\hss}%
   \ifdim\wd0>2em\hfil\break\fi
   \ignorespaces}%
