@@ -1,7 +1,7 @@
 \newif\ifToDo\ToDotrue
 \newif\ifSpec\Spectrue
 % To be set before the macro package since it stores these values.
-% Letter: 216 × 279, A4: 210 × 297
+% Letter: 216 x 279, A4: 210 x 297
 \advance\hsize by-6mm\advance\vsize by18mm
 \input epsf
 \input btxmac
@@ -203,7 +203,8 @@ The {\sl makefile} assumes that the file names without extension of the input
 and output file are the same.
 The default input file name is {\tt doc.tex}, the default output name
 is {\tt doc.dvi}.
-A different name can be configured by creating a file {\tt cfg.mk}
+A different name can be configured by creating a file
+{\tt cfg.mk}\index{{\tt cfg.mk}}
 which contains the line
 \BeginDisp\tt
 NAM = \SlNTS{name}
@@ -218,16 +219,16 @@ really all generated files are removed.
 If a specific hyphenation language should be used,
 some more settings need to be done in {\tt cfg.mk}.
 \BeginDisp\tt
-TEX = etex
+FMT = bplain\index{{\tt FMT}}\index{{\tt bplain} format}
+\End
+sets the required {\tt bplain} format.
+\BeginDisp\tt
+TEX = etex \it\% This is the default when setting FMT=bplain
 \End
 sets the tool (instead of traditional Knuth {\tt tex})
 which is used for other hyphenation patterns.
 \BeginDisp\tt
-FTM = bplain
-\End
-sets the required {\tt bplain} format.
-\BeginDisp\tt
-TEXFLAGS = -fmt \$(FMT)
+TEXFLAGS = -fmt \$(FMT) \it\% This is the default when setting FMT=bplain
 \End
 specifies the necessary tool options.
 \medskip\noindent
@@ -247,6 +248,11 @@ At the beginning the macros needs to be included:
 If cross references are used, it's data needs to be included next:
 \BeginDisp\tt
 \RS input xref
+\End
+Normally page breaks are done before chapter headings.
+To avoid these page breaks set the page eject level higher than 2:
+\BeginDisp\tt
+\RS def\RS EjectLevel\lC1\rC\index{{\tt\RS EjectLevel}}
 \End
 The title page has to be created manually.
 A simple approach (for a title without title page) is to type
@@ -352,6 +358,11 @@ The chapter heading font is defined by the macro
 \index{{\tt\RS UChapt}}%
 Unnumbered chapter with TOC entry intended for the appendix of a document.
 \End
+If a page break occurs before a heading is configured with register
+{\tt\RS EjectLevel}\index{{\tt\RS EjectLevel}}.
+Page breaks occure if the eject level is higher than the heading level.
+Since the default eject level is 2 page breaks normally are done before
+chapters but not before sections.
 \USec{Section headings}\index{section}%
 \BeginDesc
 \Item{\tt\RS Sec\lC\SlNTS{title}\rC}

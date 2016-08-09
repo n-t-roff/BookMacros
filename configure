@@ -11,9 +11,20 @@ fi
 # Set defaults
 
 grep -q '^NAM' $OutMk || echo "NAM=doc" >> $OutMk || exit 1
-grep -q '^TEX' $OutMk || echo "TEX=tex" >> $OutMk || exit 1
-# to override a shell variable
 grep -q '^FMT' $OutMk || echo "FMT=" >> $OutMk || exit 1
-grep -q '^TEXFLAGS' $OutMk || echo "TEXFLAGS=" >> $OutMk || exit 1
+grep -q '^TEX' $OutMk || {
+	if grep -q '^FMT[[:space:]]*=[[:space:]]*bplain' $OutMk; then
+		echo "TEX=etex" >> $OutMk || exit 1
+	else
+		echo "TEX=tex" >> $OutMk || exit 1
+	fi
+}
+grep -q '^TEXFLAGS' $OutMk || {
+	if grep -q '^FMT[[:space:]]*=[[:space:]]*bplain' $OutMk; then
+		echo 'TEXFLAGS=-fmt $(FMT)' >> $OutMk || exit 1
+	else
+		echo "TEXFLAGS=" >> $OutMk || exit 1
+	fi
+}
 
 cat $InMk >> $OutMk || exit 1
