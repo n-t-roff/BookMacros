@@ -6,8 +6,6 @@
 \def\makeatletter{\catcode`\@11 \relax}
 \def\makeatother{\catcode`\@12 \relax}
 \makeatletter
-\def\ChaptFont{\tenssbx}
-\def\SecFont{\tenssbx}
 \ifx\TocNam\undefined\def\TocNam{Contents}\fi
 \ifx\LofNam\undefined\def\LofNam{List of figures}\fi
 \ifx\LotNam\undefined\def\LotNam{List of tables}\fi
@@ -18,17 +16,14 @@
 \font\seventeenss=cmss17
 \font\twelvess=cmss12
 \font\tenssbx=cmssbx10
-\newcount\@ChaptNr\newcount\@SecNr\newcount\@TblNr\newcount\@FigNr
 \newcount\@CurPgNr
 \newcount\RefPgNr
-\newcount\@ListLevel
 \newcount\@ItemLevel\newcount\@EnumLevel
 \newcount\@ItemCtr
 \newcount\FootnoteCtr
 \newdimen\EpsfXsize
 \newdimen\@pagewidth\@pagewidth=\hsize % doublecolumn
 \newdimen\@pageheight\@pageheight=\vsize
-\newskip\TocChaptNrWidth\TocChaptNrWidth=1.75em % p. 118
 \newwrite\@TocFh\newwrite\@LofFh\newwrite\@LotFh
 \newwrite\@IdxFh\immediate\openout\@IdxFh=idx.txt
 \newwrite\@XrefFh\immediate\openout\@XrefFh=xref.txt
@@ -80,6 +75,10 @@
  \line{\@TocText\@leaderfill\noexpand\number\pageno}}}\@WrLofEnt}%
 \def\@MkLotEnt{\xdef\@WrLotEnt{\write\@LotFh{%
  \line{\@TocText\@leaderfill\noexpand\number\pageno}}}\@WrLotEnt}%
+\newcount\@ChaptNr\newcount\@SecNr\newcount\@SubSecNr
+\newcount\@TblNr\newcount\@FigNr
+\newskip\TocChaptNrWidth\TocChaptNrWidth=1.75em % p. 118
+\def\ChaptFont{\tenssbx}
 \def\FChapt#1{%
  \removelastskip
  \ifnum \EjectLevel>1 \vfill\supereject\FootnoteCtr=0 \else\bigbreak\fi
@@ -87,7 +86,7 @@
  \everypar={{\setbox0=\lastbox}\everypar={}}}%
 \def\@ChaptTxt{}
 \def\Chapt#1{\advance\@ChaptNr by1
- \@SecNr=0 \@TblNr=0 \@FigNr=0 \def\@SecTxt{}%
+ \@SecNr=0 \@SubSecNr=0 \@TblNr=0 \@FigNr=0 \def\@SecTxt{}%
  \def\@HdNr{\the\@ChaptNr}\def\@HdTxt{#1}\def\@ChaptTxt{#1}%
  \removelastskip
  \ifnum \EjectLevel>1 \vfill\supereject\FootnoteCtr=0 \else\bigbreak\fi
@@ -101,16 +100,30 @@
  \noindent{\ChaptFont#1}%
  {\def\@TocText{#1}\let\next=\@TocText\@MkTocEnt}%
  \par\nobreak\medskip\everypar={{\setbox0=\lastbox}\everypar={}}}%
+\newskip\TocSecNrWidth\TocSecNrWidth=2.2em
+\def\SecFont{\tenssbx}
 \def\@MkSecNr{\the\@ChaptNr.\the\@SecNr}%
 \def\@SecTxt{}
 \def\Sec#1{\advance\@SecNr by1
  \def\@HdNr{\@MkSecNr}\def\@HdTxt{#1}\def\@SecTxt{#1}%
  \removelastskip\bigbreak\noindent{\SecFont\@MkSecNr\hskip1em#1}%
  {\def\@TocText{\hskip\TocChaptNrWidth\hbox
-  to2em{\@MkSecNr\hfil}#1}\let\next=\@TocText\@MkTocEnt}%
+  to\TocSecNrWidth{\@MkSecNr\hfil}#1}\let\next=\@TocText\@MkTocEnt}%
  \par\nobreak\medskip\everypar={{\setbox0=\lastbox}\everypar={}}}%
 \def\USec#1{%
  \removelastskip\medbreak\smallskip\noindent{\SecFont#1}
+ \par\nobreak\smallskip\everypar={{\setbox0=\lastbox}\everypar={}}}%
+\def\SubSecFont{\tenssbx}
+\def\@MkSubSecNr{\the\@ChaptNr.\the\@SecNr.\the\@SubSecNr}%
+\def\@SubSecTxt{}
+\def\SubSec#1{\advance\@SubSecNr by1
+ \def\@HdNr{\@MkSubSecNr}\def\@HdTxt{#1}\def\@SubSecTxt{#1}%
+ \removelastskip\bigbreak\noindent{\SubSecFont\@MkSubSecNr\hskip1em#1}%
+ {\def\@TocText{\hskip\TocChaptNrWidth\hskip\TocSecNrWidth\hbox
+  to3em{\@MkSubSecNr\hfil}#1}\let\next=\@TocText\@MkTocEnt}%
+ \par\nobreak\medskip\everypar={{\setbox0=\lastbox}\everypar={}}}%
+\def\USubSec#1{%
+ \removelastskip\medbreak\smallskip\noindent{\SubSecFont#1}
  \par\nobreak\smallskip\everypar={{\setbox0=\lastbox}\everypar={}}}%
 \def\Par#1{\medbreak\noindent{\bf#1}}%
 \def\Toc{\FChapt{\TocNam}
@@ -124,6 +137,7 @@
  \everypar={{\setbox0=\lastbox}\everypar={}}}%
 \def\BeginDisp{\@Begin\obeylines}%
 \def\BeginNarrow{\@Begin\narrower\noindent}%
+\newcount\@ListLevel
 \def\BeginDesc{\@Begin
  \ifnum\@ListLevel=0 \advance\leftskip by1em\else\advance\leftskip by4em\fi
  \advance\@ListLevel by1 \@ItemLevel=0 \@EnumLevel=0
