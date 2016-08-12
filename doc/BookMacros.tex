@@ -649,6 +649,21 @@ EPS image\rC\rC
 produces:\smallskip\nobreak\noindent
 \epsfxsize=5cm
 \centerline{\EpsfBox{ctanlion.eps}\FigCapt{Scaled EPS image}}
+\Chapt{Equation labels}
+For automatic equation labeling the macro
+{\tt\RS EqNo}\index{{\tt\RS EqNo}}
+is provided.
+E.g. {\tt\$\$a=b+c\RS EqNo\$\$} gives:
+$$a=b+c\EqNo$$
+If the label should be referenced later, the statement
+{\tt\RS Label\lC\SlNTS{ID}\rC}
+\Ref{cross references}
+should be placed after the equation (see chapter \RefHdNr\RefPg).
+Before referencing the label the statement
+{\tt\RS Ref\lC\SlNTS{ID}\rC}
+must be placed in the text.
+The label is then referenced with
+{\tt\RS RefNr}.
 \Chapt{Footnotes}
 Plain \TeX\ provides a ready to use solution for
 footnotes\footnote{*}{Like this which is produced with
@@ -667,12 +682,12 @@ Further references to a previous footnote\FootnoteRef\ can be marked with
 {\tt\RS FootnoteRef}.
 {\tt\RS footnote} must not be used in an {\sl insert}.
 {\tt\RS vfootnote}\Footnote{\cite[p. 117]{knuth:ct:a}} may be used instead.
-\Chapt{Cross references}\index{cross references}%
+\Chapt{Cross references}\index{cross references}\Label{cross references}%
 A reference mark can be placed with
 \BeginDisp\tt
 \RS Label\lC\SlNTS{label}\rC
 \End
-at a heading, table, figure etc.
+at a heading, table, figure, equation etc.
 To reference a label the label data needs to be loaded with
 \BeginDisp\tt
 \RS Ref\lC\SlNTS{label}\rC
@@ -680,7 +695,7 @@ To reference a label the label data needs to be loaded with
 After that the following macros are set:
 \BeginDesc
 \Item{\tt\RS RefPgNr} Reference page number.\index{{\tt\RS RefPgNr}}
-\Item{\tt\RS RefNr} Number of table or figure.\index{{\tt\RS RefNr}}
+\Item{\tt\RS RefNr} Number of table, figure, or equation.\index{{\tt\RS RefNr}}
 \Item{\tt\RS RefHdNr} Number of heading.\index{{\tt\RS RefHdNr}}
 \Item{\tt\RS RefHd} Title of the last heading before the label.
  \index{{\tt\RS RefHd}}%

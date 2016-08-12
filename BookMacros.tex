@@ -76,7 +76,7 @@
 \def\@MkLotEnt{\xdef\@WrLotEnt{\write\@LotFh{%
  \line{\@TocText\@leaderfill\noexpand\number\pageno}}}\@WrLotEnt}%
 \newcount\@ChaptNr\newcount\@SecNr\newcount\@SubSecNr
-\newcount\@TblNr\newcount\@FigNr
+\newcount\@TblNr\newcount\@FigNr\newcount\@EqNr
 \newskip\TocChaptNrWidth\TocChaptNrWidth=1.75em % p. 118
 \def\ChaptFont{\tenssbx}
 \def\FChapt#1{%
@@ -194,6 +194,8 @@
  \xdef\@FloatNr{\the\@ChaptNr.\the\@FigNr}{\bf \FigNam~\@FloatNr. }#1.}%
 \def\@FigCaptLof#1{{\def\@TocText{\FigNam\ \@FloatNr\ \ #1}%
  \let\next=\@TocText\@MkLofEnt}}%
+\def\EqNo{\advance\@EqNr by1
+ \xdef\@FloatNr{(\the\@ChaptNr.\the\@EqNr)}\eqno\@FloatNr}
 \def\@MkXrefEnt{%
  \xdef\@WrXrefEnt{\write\@XrefFh{\@XrefText\noexpand\number\pageno}}%
  \@WrXrefEnt}%
